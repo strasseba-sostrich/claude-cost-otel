@@ -34,7 +34,7 @@
                 "plugin": {
                   "kind": "PrometheusTimeSeriesQuery",
                   "spec": {
-                    "query": "sum by (tool_name) (increase(claude_code_span_calls_total{span_type=\"tool\"}[$__range]) or last_over_time(claude_code_span_calls_total{span_type=\"tool\"}[$__range]))",
+                    "query": "round(sum by (tool_name) (increase(claude_code_span_calls_total{span_type=\"tool\"}[$__range]) or last_over_time(claude_code_span_calls_total{span_type=\"tool\"}[$__range])))",
                     "seriesNameFormat": "{{tool_name}}"
                   }
                 }
@@ -156,6 +156,9 @@
                 "format": {
                   "unit": "bytes"
                 }
+              },
+              "legend": {
+                "position": "bottom"
               }
             }
           },
@@ -187,7 +190,7 @@
               "x": 0,
               "y": 0,
               "width": 12,
-              "height": 8,
+              "height": 12,
               "content": {
                 "$ref": "#/spec/panels/toolCalls"
               }
@@ -196,14 +199,14 @@
               "x": 12,
               "y": 0,
               "width": 12,
-              "height": 8,
+              "height": 12,
               "content": {
                 "$ref": "#/spec/panels/toolDuration"
               }
             },
             {
               "x": 0,
-              "y": 8,
+              "y": 12,
               "width": 6,
               "height": 6,
               "content": {
@@ -212,7 +215,7 @@
             },
             {
               "x": 6,
-              "y": 8,
+              "y": 12,
               "width": 6,
               "height": 6,
               "content": {
@@ -221,7 +224,7 @@
             },
             {
               "x": 12,
-              "y": 8,
+              "y": 12,
               "width": 12,
               "height": 8,
               "content": {

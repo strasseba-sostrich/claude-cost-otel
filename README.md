@@ -84,7 +84,7 @@ Useful options: `--dry-run`, `--settings PATH`, `--endpoint URL`, `--interval MS
 | OpenTelemetry Collector | `localhost:4317` (OTLP gRPC) | Receives everything, routes each signal. |
 | Prometheus | <http://localhost:9090> | Metrics. Started with `--web.enable-otlp-receiver` and `--enable-feature=otlp-deltatocumulative` so it accepts OTLP directly. |
 | Perses | <http://localhost:8080> | Dashboards, no login in this local setup. |
-| Jaeger | <http://localhost:16686> | Traces, shown in the dashboard's **Prompts** row and browsable in its own UI. |
+| Jaeger | <http://localhost:16686> | Traces, browsable in its own UI. The dashboards do not use them; the span-based **Tools** panels come from `spanmetrics` in the collector. |
 | Loki | <http://localhost:3100> | Log events, received through Loki's native OTLP endpoint. Perses can chart them with LogQL. |
 
 All ports are bound to `127.0.0.1`.
@@ -113,16 +113,8 @@ tools do rather than what they cost:
 - **Tool errors**
 - **Tool result size by tool** (bytes returned into the context, from Loki log events)
 
-The **Prompts** row at the bottom of Agent cost comes from Jaeger traces and is for
-drilling into what happened:
-
-- **Recent prompts**: the latest prompts with duration and span count. Clicking a row
-  opens that trace in Jaeger.
-- **Latest prompt timeline**: the most recent prompt end to end (LLM requests, tool
-  calls, subagents, permission waits) as a Gantt chart.
-
-A prompt's trace only appears once the prompt has finished, so the current one shows up
-after it ends.
+Individual prompts and their spans (LLM requests, tool calls, subagents, permission
+waits) are not on a dashboard; browse them in Jaeger at <http://localhost:16686>.
 
 ### Limits worth knowing
 
@@ -132,8 +124,6 @@ after it ends.
   the context, and so to later cache-read cost.
 - **The log panel uses a fixed 5-minute window.** Perses documents its built-in range
   variables only for Prometheus queries, so the Loki panel does not use them.
-- **The timeline always shows the latest prompt.** Picking an arbitrary trace is not
-  wired up; open it from the **Recent prompts** table in Jaeger instead.
 - **Loki is slow to report ready.** Its `/ready` answers 503 for the first minutes after
   start. `status` shows that as `wait`, and logs are accepted in the meantime.
 - **Short-lived agents can be slightly undercounted.** The first sample of a new

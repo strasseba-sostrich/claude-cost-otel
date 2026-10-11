@@ -7,7 +7,7 @@
   "spec": {
     "display": {
       "name": "Agent cost",
-      "description": "What each agent (main, implementer, reviewer, general-purpose...) costs, on which model and through which MCP tools, plus how recent prompts played out."
+      "description": "What each agent (main, implementer, reviewer, general-purpose...) costs, on which model and through which MCP tools."
     },
     "panels": {
       "byAgent": {
@@ -95,7 +95,15 @@
               },
               "mode": "value",
               "radius": 0.5,
-              "sort": "desc"
+              "sort": "desc",
+              "legend": {
+                "position": "right",
+                "mode": "table",
+                "values": [
+                  "abs",
+                  "relative"
+                ]
+              }
             }
           },
           "queries": [
@@ -247,66 +255,6 @@
             }
           ]
         }
-      },
-      "recentPrompts": {
-        "kind": "Panel",
-        "spec": {
-          "display": {
-            "name": "Recent prompts",
-            "description": "The latest prompts with duration and span count. Click a row to open the full trace in Jaeger."
-          },
-          "plugin": {
-            "kind": "TraceTable",
-            "spec": {
-              "links": {
-                "trace": "http://localhost:16686/trace/${traceId}"
-              }
-            }
-          },
-          "queries": [
-            {
-              "kind": "TraceQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "JaegerTraceQuery",
-                  "spec": {
-                    "service": "claude-code",
-                    "operation": "claude_code.interaction",
-                    "limit": 20
-                  }
-                }
-              }
-            }
-          ]
-        }
-      },
-      "latestTimeline": {
-        "kind": "Panel",
-        "spec": {
-          "display": {
-            "name": "Latest prompt timeline",
-            "description": "The most recent prompt end to end: LLM requests, tool calls, subagents and permission waits."
-          },
-          "plugin": {
-            "kind": "TracingGanttChart",
-            "spec": {}
-          },
-          "queries": [
-            {
-              "kind": "TraceQuery",
-              "spec": {
-                "plugin": {
-                  "kind": "JaegerTraceQuery",
-                  "spec": {
-                    "service": "claude-code",
-                    "operation": "claude_code.interaction",
-                    "limit": 1
-                  }
-                }
-              }
-            }
-          ]
-        }
       }
     },
     "layouts": [
@@ -378,34 +326,6 @@
               "height": 8,
               "content": {
                 "$ref": "#/spec/panels/mcp"
-              }
-            }
-          ]
-        }
-      },
-      {
-        "kind": "Grid",
-        "spec": {
-          "display": {
-            "title": "Prompts"
-          },
-          "items": [
-            {
-              "x": 0,
-              "y": 0,
-              "width": 24,
-              "height": 9,
-              "content": {
-                "$ref": "#/spec/panels/recentPrompts"
-              }
-            },
-            {
-              "x": 0,
-              "y": 9,
-              "width": 24,
-              "height": 13,
-              "content": {
-                "$ref": "#/spec/panels/latestTimeline"
               }
             }
           ]
