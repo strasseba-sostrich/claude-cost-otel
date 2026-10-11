@@ -7,6 +7,8 @@ Apache License, Version 2.0 (see LICENSE).
 Modified files, relative to the upstream project:
   docker-compose.yml   ports bound to 127.0.0.1, Perses runs as 0:0
   otelcol.yaml         adds the spanmetrics connector
+  perses/provisioning/dashboards/claude-code-metrics.yaml
+                       trimmed from 29 panels to 7, queries adjusted
 
 Added files:
   claude_cost_otel.py

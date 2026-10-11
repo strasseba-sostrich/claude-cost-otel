@@ -104,7 +104,10 @@ running Perses. Panels:
 - **Output tokens by agent**
 - **Cost by MCP tool**
 
-The upstream **Claude Code Metrics (Prometheus)** dashboard is provisioned alongside it.
+A small **Claude Code overview** dashboard is provisioned alongside it
+([`claude-code-metrics.yaml`](perses/provisioning/dashboards/claude-code-metrics.yaml)):
+sessions, total cost, total tokens, **prompt-cache hit ratio**, cost and token trends,
+and the ten most expensive sessions. It is a trimmed version of the upstream dashboard.
 
 ### Limits worth knowing
 
@@ -129,6 +132,8 @@ This repository started from
 - `otelcol.yaml` adds a `spanmetrics` connector that turns spans into
   `claude_code_span_calls_total` and `claude_code_span_duration_milliseconds_*`,
   labelled by tool, session, user, span type and query source.
+- Trims the upstream dashboard from 29 panels to 7 and makes its cost and token
+  totals count series that only have a single sample.
 - Adds the **Agent cost** dashboard and `claude_cost_otel.py`.
 - Drops the upstream `data/` directory, which the compose file does not use.
 
