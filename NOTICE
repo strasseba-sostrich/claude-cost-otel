@@ -1,0 +1,17 @@
+claude-cost-otel
+
+This project is derived from claude-code-monitoring
+(https://github.com/dash0-community/claude-code-monitoring), licensed under the
+Apache License, Version 2.0 (see LICENSE).
+
+Modified files, relative to the upstream project:
+  docker-compose.yml   ports bound to 127.0.0.1, Perses runs as 0:0
+  otelcol.yaml         adds the spanmetrics connector
+
+Added files:
+  claude_cost_otel.py
+  perses/provisioning/dashboards/agent-cost.json
+  README.md, NOTICE, docs/agent-cost-dashboard.png
+
+Removed from upstream:
+  data/

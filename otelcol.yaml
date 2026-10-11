@@ -1,0 +1,50 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+connectors:
+  spanmetrics:
+    namespace: claude_code_span
+    histogram:
+      explicit:
+        buckets: [100ms, 500ms, 1s, 5s, 15s, 60s, 5m]
+    dimensions:
+      - name: tool_name
+      - name: session.id
+      - name: user.email
+      - name: span.type
+      - name: subagent_type
+      - name: query_source_safe
+
+exporters:
+  debug:
+    verbosity: detailed
+
+  otlp_http/prometheus:
+    endpoint: http://prometheus:9090/api/v1/otlp
+    tls:
+      insecure: true
+
+  otlp_grpc/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+
+  otlp_grpc/data_prepper:
+    endpoint: data-prepper:21893
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp, spanmetrics]
+      exporters: [debug, otlp_http/prometheus]
+    logs:
+      receivers: [otlp]
+      exporters: [debug, otlp_grpc/data_prepper]
+    traces:
+      receivers: [otlp]
+      exporters: [debug, otlp_grpc/jaeger, spanmetrics]
