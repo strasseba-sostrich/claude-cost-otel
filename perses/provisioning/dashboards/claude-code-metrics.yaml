@@ -7,8 +7,8 @@ spec:
     name: "Claude Code overview"
     description: >-
       The few Claude Code usage numbers worth watching: sessions, cost, tokens,
-      prompt-cache hit ratio, cost and token trends, and the most expensive
-      sessions. Per-agent and per-tool cost lives on the Agent cost dashboard.
+      prompt-cache hit ratio, and cost and token trends. Per-agent and per-tool
+      cost lives on the Agent cost dashboard.
   duration: "6h"
   refreshInterval: "30s"
   variables:
@@ -227,30 +227,6 @@ spec:
                   query: 'sum(rate(claude_code_token_usage_tokens_total{organization_id=~"$organization", user_email=~"$user", model=~"$model"}[$__rate_interval])) by (type)'
                   seriesNameFormat: "{{type}}"
 
-    topSessionsByCost:
-      kind: "Panel"
-      spec:
-        display:
-          name: "Top Sessions by Cost"
-          description: "The 10 most expensive sessions in the selected range; useful for spotting runaway sessions"
-        plugin:
-          kind: "BarChart"
-          spec:
-            calculation: "last"
-            orientation: "horizontal"
-            sort: "desc"
-            format:
-              unit: "usd"
-              decimalPlaces: 2
-        queries:
-          - kind: "TimeSeriesQuery"
-            spec:
-              plugin:
-                kind: "PrometheusTimeSeriesQuery"
-                spec:
-                  query: 'topk(10, sum(increase(claude_code_cost_usage_USD_total{organization_id=~"$organization", user_email=~"$user", model=~"$model"}[$__range]) or last_over_time(claude_code_cost_usage_USD_total{organization_id=~"$organization", user_email=~"$user", model=~"$model"}[$__range])) by (session_id))'
-                  seriesNameFormat: "{{session_id}}"
-
   layouts:
     - kind: "Grid"
       spec:
@@ -285,7 +261,7 @@ spec:
     - kind: "Grid"
       spec:
         display:
-          title: "Trends and outliers"
+          title: "Trends"
         items:
           - x: 0
             y: 0
@@ -299,9 +275,3 @@ spec:
             height: 8
             content:
               $ref: "#/spec/panels/tokenUsageByType"
-          - x: 0
-            y: 8
-            width: 24
-            height: 8
-            content:
-              $ref: "#/spec/panels/topSessionsByCost"
