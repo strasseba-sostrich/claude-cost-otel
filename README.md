@@ -118,7 +118,7 @@ The **Prompts** row at the bottom of Agent cost is for drilling into one prompt:
 - **Prompt trace** (variable at the top): the prompts from the last 3 hours, listed
   from Loki log events, which carry each prompt's trace ID.
 - **Recent prompts**: the latest prompts from Jaeger with duration, span count and
-  errors. Clicking a row selects it in **Prompt trace**.
+  errors. Clicking a prompt's name opens it on the separate **Prompt** dashboard.
 - **Prompt timeline**: the selected prompt end to end (LLM requests, tool calls,
   subagents, permission waits) as a Gantt chart.
 
@@ -132,7 +132,12 @@ The **Prompts** row at the bottom of Agent cost is for drilling into one prompt:
   variables only for Prometheus queries, so the Loki panel does not use them.
 - **The timeline does not default to the newest prompt.** **Prompt trace** selects the
   first ID in its list, which is ordered by trace ID, not by time. Pick the prompt you
-  want from the dropdown or by clicking a row in **Recent prompts**.
+  want from the dropdown, or click it in **Recent prompts**.
+- **Clicking a prompt opens another dashboard.** Perses reads URL variables only when a
+  dashboard loads, so a link back to the same dashboard changes the address but not the
+  variable. The **Prompt** dashboard
+  ([`prompt.json`](perses/provisioning/dashboards/prompt.json)) holds just the
+  timeline, so the link always lands on a fresh load.
 - **The prompt list is a fixed 3-hour window.** It comes from a Loki query, and Perses
   documents range variables only for Prometheus.
 - **Loki is slow to report ready.** Its `/ready` answers 503 for the first minutes after

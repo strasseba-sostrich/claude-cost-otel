@@ -261,13 +261,13 @@
         "spec": {
           "display": {
             "name": "Recent prompts",
-            "description": "The latest prompts with duration and span count. Click a row to show its timeline below."
+            "description": "The latest prompts with duration, span count and errors. Click a prompt's name to open its timeline."
           },
           "plugin": {
             "kind": "TraceTable",
             "spec": {
               "links": {
-                "trace": "/projects/ai-agents/dashboards/agent-cost?var-traceId=${traceId}"
+                "trace": "/projects/ai-agents/dashboards/prompt?var-traceId=${traceId}"
               }
             }
           },
