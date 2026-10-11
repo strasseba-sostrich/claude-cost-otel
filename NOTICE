@@ -12,6 +12,7 @@ Modified files, relative to the upstream project:
 Added files:
   claude_cost_otel.py
   perses/provisioning/dashboards/agent-cost.json
+  perses/provisioning/dashboards/tools.json
   perses/provisioning/datasources/loki.yaml
   perses/provisioning/datasources/jaeger.yaml
   loki/config.yaml

@@ -92,8 +92,8 @@ All ports are bound to `127.0.0.1`.
 ### The dashboard
 
 Defined in [`perses/provisioning/dashboards/agent-cost.json`](perses/provisioning/dashboards/agent-cost.json).
-Perses provisions it on start, and `claude_cost_otel.py dashboard` pushes it into a
-running Perses. Panels:
+Perses provisions the dashboards on start, and `claude_cost_otel.py dashboard` pushes
+them into a running Perses. The **Agent cost** dashboard has these panels:
 
 - **Total cost**
 - **Cost per subagent** (pie, main session excluded)
@@ -103,7 +103,9 @@ running Perses. Panels:
 - **Output tokens by agent**
 - **Cost by MCP tool**
 
-A second row, **Tools**, shows what the agents do rather than what they cost:
+A separate **Tools** dashboard
+([`tools.json`](perses/provisioning/dashboards/tools.json)) shows what the agents'
+tools do rather than what they cost:
 
 - **Tool calls** per tool
 - **Average tool duration** per tool
@@ -111,7 +113,8 @@ A second row, **Tools**, shows what the agents do rather than what they cost:
 - **Tool errors**
 - **Tool result size by tool** (bytes returned into the context, from Loki log events)
 
-A third row, **Prompts**, comes from Jaeger traces and is for drilling into what happened:
+The **Prompts** row at the bottom of Agent cost comes from Jaeger traces and is for
+drilling into what happened:
 
 - **Recent prompts**: the latest prompts with duration and span count. Clicking a row
   opens that trace in Jaeger.
@@ -124,7 +127,7 @@ after it ends.
 ### Limits worth knowing
 
 - **No cost per built-in tool.** Claude Code attributes cost to agents, models and MCP
-  tools, not to Bash, Read, Edit and the like. The **Tools** row shows calls, duration
+  tools, not to Bash, Read, Edit and the like. The **Tools** dashboard shows calls, duration
   and result size instead, and result size is the best proxy for what a tool adds to
   the context, and so to later cache-read cost.
 - **The log panel uses a fixed 5-minute window.** Perses documents its built-in range
