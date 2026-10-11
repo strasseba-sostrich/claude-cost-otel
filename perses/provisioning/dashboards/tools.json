@@ -80,8 +80,8 @@
         "kind": "Panel",
         "spec": {
           "display": {
-            "name": "Time blocked on you",
-            "description": "Time spent waiting for permission prompts in the selected range"
+            "name": "Time blocked on user",
+            "description": "Total time tool calls spent waiting for the user's permission decision in the selected range. Summed per call, so prompts that waited at the same time are counted separately."
           },
           "plugin": {
             "kind": "StatChart",

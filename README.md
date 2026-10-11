@@ -109,7 +109,7 @@ tools do rather than what they cost:
 
 - **Tool calls** per tool
 - **Average tool duration** per tool
-- **Time blocked on you** (permission prompts)
+- **Time blocked on user** (waiting for permission decisions)
 - **Tool errors**
 - **Tool result size by tool** (bytes returned into the context, from Loki log events)
 
