@@ -40,7 +40,7 @@ only writes user-level settings.
 |---|---|---|
 | `CLAUDE_CODE_ENABLE_TELEMETRY` | `1` | Master switch for OpenTelemetry export. |
 | `OTEL_METRICS_EXPORTER` | `otlp` | Cost and token counters, which feed the dashboard. |
-| `OTEL_LOGS_EXPORTER` | `otlp` | Per-request events (`api_request`, `tool_result`, ...), stored in OpenSearch. |
+| `OTEL_LOGS_EXPORTER` | `otlp` | Per-request events (`api_request`, `tool_result`, ...), stored in Loki. |
 | `OTEL_TRACES_EXPORTER` | `otlp` | Spans per interaction, model request and tool call, viewable in Jaeger. |
 | `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA` | `1` | Required for traces (beta). Metrics and logs work without it. |
 | `OTEL_EXPORTER_OTLP_PROTOCOL` | `grpc` | Claude Code has no default protocol; the collector listens on gRPC. |
@@ -56,7 +56,7 @@ on those counters, so the per-agent and per-MCP-tool panels lose their meaning. 
 
 `OTEL_LOG_TOOL_DETAILS=1` also adds tool parameters to log events and trace spans:
 Bash commands, file paths, URLs, search patterns and MCP tool names. In this setup
-that data stays on your machine (OpenSearch and Jaeger, bound to `127.0.0.1`), but it
+that data stays on your machine (Loki and Jaeger, bound to `127.0.0.1`), but it
 is more than the default. Pass `--no-tool-details` to `setup` or `enable` to leave
 the flag off.
 
@@ -85,8 +85,7 @@ Useful options: `--dry-run`, `--settings PATH`, `--endpoint URL`, `--interval MS
 | Prometheus | <http://localhost:9090> | Metrics. Started with `--web.enable-otlp-receiver` and `--enable-feature=otlp-deltatocumulative` so it accepts OTLP directly. |
 | Perses | <http://localhost:8080> | Dashboards, no login in this local setup. |
 | Jaeger | <http://localhost:16686> | Traces. |
-| OpenSearch (via Data Prepper) | <http://localhost:9200> | Log events. |
-| OpenSearch Dashboards | <http://localhost:5601> | Browse log events. |
+| Loki | <http://localhost:3100> | Log events, received through Loki's native OTLP endpoint. Perses can chart them with LogQL. |
 
 All ports are bound to `127.0.0.1`.
 
@@ -104,11 +103,22 @@ running Perses. Panels:
 - **Output tokens by agent**
 - **Cost by MCP tool**
 
+A second row, **Tools**, shows what the agents do rather than what they cost:
+
+- **Tool calls** per tool
+- **Average tool duration** per tool
+- **Time blocked on you** (permission prompts)
+- **Tool errors**
+- **Tool result size by tool** (bytes returned into the context, from Loki log events)
+
 ### Limits worth knowing
 
 - **No cost per built-in tool.** Claude Code attributes cost to agents, models and MCP
-  tools, not to Bash, Read, Edit and the like. Call counts and durations for those are
-  available as span metrics (`claude_code_span_*`), not as cost.
+  tools, not to Bash, Read, Edit and the like. The **Tools** row shows calls, duration
+  and result size instead, and result size is the best proxy for what a tool adds to
+  the context, and so to later cache-read cost.
+- **The log panel uses a fixed 5-minute window.** Perses documents its built-in range
+  variables only for Prometheus queries, so the Loki panel does not use them.
 - **Short-lived agents can be slightly undercounted.** The first sample of a new
   metric series has no baseline, so `increase()` skips it. The panels fall back to
   `last_over_time` for series with a single sample, but a series with several samples
@@ -127,6 +137,9 @@ This repository started from
 - `otelcol.yaml` adds a `spanmetrics` connector that turns spans into
   `claude_code_span_calls_total` and `claude_code_span_duration_milliseconds_*`,
   labelled by tool, session, user, span type and query source.
+- Replaces OpenSearch, Data Prepper and OpenSearch Dashboards with a single Loki
+  container. The collector sends logs to Loki's native OTLP endpoint, and Perses has a
+  provisioned Loki datasource.
 - Replaces the upstream **Claude Code Metrics** dashboard with the **Agent cost**
   dashboard and adds `claude_cost_otel.py`.
 - Drops the upstream `data/` directory, which the compose file does not use.

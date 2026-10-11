@@ -33,7 +33,7 @@ SERVICES = {
     "Perses": "http://localhost:8080/api/v1/health",
     "Prometheus": "http://localhost:9090/-/ready",
     "Jaeger": "http://localhost:16686/",
-    "OpenSearch": "http://localhost:9200/",
+    "Loki": "http://localhost:3100/ready",
 }
 COLLECTOR_ADDR = ("localhost", 4317)
 

@@ -5,14 +5,18 @@ This project is derived from claude-code-monitoring
 Apache License, Version 2.0 (see LICENSE).
 
 Modified files, relative to the upstream project:
-  docker-compose.yml   ports bound to 127.0.0.1, Perses runs as 0:0
-  otelcol.yaml         adds the spanmetrics connector
+  docker-compose.yml   ports bound to 127.0.0.1, Perses runs as 0:0, OpenSearch
+                       stack replaced by Loki
+  otelcol.yaml         adds the spanmetrics connector, logs go to Loki
 
 Added files:
   claude_cost_otel.py
   perses/provisioning/dashboards/agent-cost.json
+  perses/provisioning/datasources/loki.yaml
+  loki/config.yaml
   README.md, NOTICE, docs/agent-cost-dashboard.png
 
 Removed from upstream:
   data/
+  data-prepper/
   perses/provisioning/dashboards/claude-code-metrics.yaml
