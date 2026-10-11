@@ -27,11 +27,6 @@ exporters:
     tls:
       insecure: true
 
-  otlp_grpc/jaeger:
-    endpoint: jaeger:4317
-    tls:
-      insecure: true
-
   # Loki's native OTLP endpoint; the exporter appends /v1/logs.
   otlp_http/loki:
     endpoint: http://loki:3100/otlp
@@ -46,6 +41,7 @@ service:
     logs:
       receivers: [otlp]
       exporters: [debug, otlp_http/loki]
+    # Spans are not stored; they only feed the spanmetrics connector above.
     traces:
       receivers: [otlp]
-      exporters: [debug, otlp_grpc/jaeger, spanmetrics]
+      exporters: [debug, spanmetrics]

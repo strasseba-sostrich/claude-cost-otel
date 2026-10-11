@@ -32,7 +32,6 @@ PERSES_URL = "http://localhost:8080"
 SERVICES = {
     "Perses": "http://localhost:8080/api/v1/health",
     "Prometheus": "http://localhost:9090/-/ready",
-    "Jaeger": "http://localhost:16686/",
     "Loki": "http://localhost:3100/ready",
 }
 COLLECTOR_ADDR = ("localhost", 4317)
@@ -248,8 +247,11 @@ def cmd_status(args) -> None:
     except OSError:
         collector = False
     print(f"  [{'up  ' if collector else 'down'}] {'Collector':<11} {COLLECTOR_ADDR[0]}:{COLLECTOR_ADDR[1]} (OTLP gRPC)")
-    status, _ = http("GET", f"{args.perses_url}/api/v1/projects/ai-agents/dashboards/agent-cost")
-    print(f"Dashboard ai-agents/agent-cost: {'present' if status == 200 else 'not loaded'}")
+    print("Dashboards:")
+    for path in sorted(DASHBOARD_DIR.glob("*.json")):
+        meta = json.loads(path.read_text(encoding="utf-8"))["metadata"]
+        status, _ = http("GET", f"{args.perses_url}/api/v1/projects/{meta['project']}/dashboards/{meta['name']}")
+        print(f"  [{'ok  ' if status == 200 else 'miss'}] {meta['project']}/{meta['name']}")
 
 
 def build_parser() -> argparse.ArgumentParser:

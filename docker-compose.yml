@@ -39,15 +39,6 @@ services:
     ports:
       - 127.0.0.1:3100:3100
 
-  jaeger:
-    image: jaegertracing/jaeger:2.20.0
-    container_name: jaeger
-    restart: unless-stopped
-    environment:
-      COLLECTOR_OTLP_ENABLED: "true"
-    ports:
-      - 127.0.0.1:16686:16686
-
   perses:
     image: persesdev/perses:v0.54.0
     container_name: perses
@@ -61,7 +52,6 @@ services:
     depends_on:
       - prometheus
       - loki
-      - jaeger
 
 volumes:
   prometheus_data:

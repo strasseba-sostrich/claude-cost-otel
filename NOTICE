@@ -6,15 +6,15 @@ Apache License, Version 2.0 (see LICENSE).
 
 Modified files, relative to the upstream project:
   docker-compose.yml   ports bound to 127.0.0.1, Perses runs as 0:0, OpenSearch
-                       stack replaced by Loki
-  otelcol.yaml         adds the spanmetrics connector, logs go to Loki
+                       stack replaced by Loki, Jaeger removed
+  otelcol.yaml         adds the spanmetrics connector, logs go to Loki, spans are
+                       not exported to Jaeger
 
 Added files:
   claude_cost_otel.py
   perses/provisioning/dashboards/agent-cost.json
   perses/provisioning/dashboards/tools.json
   perses/provisioning/datasources/loki.yaml
-  perses/provisioning/datasources/jaeger.yaml
   loki/config.yaml
   README.md, NOTICE, docs/agent-cost-dashboard.png
 
