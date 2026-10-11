@@ -1,0 +1,12 @@
+kind: "GlobalDatasource"
+metadata:
+  name: "jaeger"
+spec:
+  default: true
+  plugin:
+    kind: "JaegerDatasource"
+    spec:
+      proxy:
+        kind: "HTTPProxy"
+        spec:
+          url: "http://jaeger:16686"

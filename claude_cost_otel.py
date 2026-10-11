@@ -238,8 +238,10 @@ def cmd_status(args) -> None:
         print(f"  [{mark}] {key}={have if have is not None else '-'}")
     print("Services:")
     for name, url in SERVICES.items():
-        up = 200 <= http("GET", url)[0] < 300
-        print(f"  [{'up  ' if up else 'down'}] {name:<11} {url}")
+        code = http("GET", url)[0]
+        # Loki answers 503 on /ready for its first minutes while its ring settles.
+        state = "up  " if 200 <= code < 300 else ("wait" if code == 503 else "down")
+        print(f"  [{state}] {name:<11} {url}")
     try:
         socket.create_connection(COLLECTOR_ADDR, timeout=2).close()
         collector = True
