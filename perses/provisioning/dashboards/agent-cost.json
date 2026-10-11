@@ -1,0 +1,330 @@
+{
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "agent-cost",
+    "project": "ai-agents"
+  },
+  "spec": {
+    "display": {
+      "name": "Agent cost",
+      "description": "What each agent (main, implementer, reviewer, general-purpose...) costs, on which model, and which MCP tools drive spend."
+    },
+    "panels": {
+      "byAgent": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Cost by agent",
+            "description": "main = the session itself; other rows are subagents by name"
+          },
+          "plugin": {
+            "kind": "BarChart",
+            "spec": {
+              "calculation": "last",
+              "format": {
+                "decimalPlaces": 3,
+                "unit": "usd"
+              },
+              "sort": "desc"
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "label_replace(sum by (agent_name) (increase(claude_code_cost_usage_USD_total[$__range]) or last_over_time(claude_code_cost_usage_USD_total[$__range])), \"agent_name\", \"main\", \"agent_name\", \"^$\")",
+                    "seriesNameFormat": "{{agent_name}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "byModel": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Cost by agent and model",
+            "description": "Which model each agent ran on"
+          },
+          "plugin": {
+            "kind": "BarChart",
+            "spec": {
+              "calculation": "last",
+              "format": {
+                "decimalPlaces": 3,
+                "unit": "usd"
+              },
+              "sort": "desc"
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "label_replace(sum by (agent_name, model) (increase(claude_code_cost_usage_USD_total[$__range]) or last_over_time(claude_code_cost_usage_USD_total[$__range])), \"agent_name\", \"main\", \"agent_name\", \"^$\")",
+                    "seriesNameFormat": "{{agent_name}} / {{model}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "bySubagent": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Cost per subagent",
+            "description": "Spend of each subagent by name; the main session is excluded"
+          },
+          "plugin": {
+            "kind": "PieChart",
+            "spec": {
+              "calculation": "last",
+              "format": {
+                "decimalPlaces": 3,
+                "unit": "usd"
+              },
+              "mode": "value",
+              "radius": 0.5,
+              "sort": "desc"
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (agent_name) (increase(claude_code_cost_usage_USD_total{query_source=\"subagent\"}[$__range]) or last_over_time(claude_code_cost_usage_USD_total{query_source=\"subagent\"}[$__range]))",
+                    "seriesNameFormat": "{{agent_name}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "mcp": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Cost by MCP tool",
+            "description": "Cost attributed to MCP tool calls; built-in tools have no cost attribution"
+          },
+          "plugin": {
+            "kind": "BarChart",
+            "spec": {
+              "calculation": "last",
+              "format": {
+                "decimalPlaces": 3,
+                "unit": "usd"
+              },
+              "sort": "desc"
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (mcp_server_name, mcp_tool_name) (increase(claude_code_cost_usage_USD_total{mcp_tool_name!=\"\"}[$__range]) or last_over_time(claude_code_cost_usage_USD_total{mcp_tool_name!=\"\"}[$__range]))",
+                    "seriesNameFormat": "{{mcp_server_name}} / {{mcp_tool_name}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "overTime": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Cost over time by agent (USD/h)",
+            "description": "Spend rate per agent"
+          },
+          "plugin": {
+            "kind": "TimeSeriesChart",
+            "spec": {
+              "yAxis": {
+                "format": {
+                  "unit": "usd"
+                }
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "label_replace(sum by (agent_name) (rate(claude_code_cost_usage_USD_total[$__rate_interval])) * 3600, \"agent_name\", \"main\", \"agent_name\", \"^$\")",
+                    "seriesNameFormat": "{{agent_name}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "tokens": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Output tokens by agent",
+            "description": "Generated tokens per agent (excludes cache reads)"
+          },
+          "plugin": {
+            "kind": "BarChart",
+            "spec": {
+              "calculation": "last",
+              "format": {
+                "shortValues": true,
+                "unit": "decimal"
+              },
+              "sort": "desc"
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "label_replace(sum by (agent_name) (increase(claude_code_token_usage_tokens_total{type=\"output\"}[$__range]) or last_over_time(claude_code_token_usage_tokens_total{type=\"output\"}[$__range])), \"agent_name\", \"main\", \"agent_name\", \"^$\")",
+                    "seriesNameFormat": "{{agent_name}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "total": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Total cost",
+            "description": "All agents, selected range"
+          },
+          "plugin": {
+            "kind": "StatChart",
+            "spec": {
+              "calculation": "last",
+              "format": {
+                "decimalPlaces": 2,
+                "unit": "usd"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum(increase(claude_code_cost_usage_USD_total[$__range]) or last_over_time(claude_code_cost_usage_USD_total[$__range]))",
+                    "seriesNameFormat": "total"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "layouts": [
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "Agent cost"
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 6,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/total"
+              }
+            },
+            {
+              "x": 6,
+              "y": 0,
+              "width": 9,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/bySubagent"
+              }
+            },
+            {
+              "x": 15,
+              "y": 0,
+              "width": 9,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/byAgent"
+              }
+            },
+            {
+              "x": 0,
+              "y": 8,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/overTime"
+              }
+            },
+            {
+              "x": 12,
+              "y": 8,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/byModel"
+              }
+            },
+            {
+              "x": 0,
+              "y": 16,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/tokens"
+              }
+            },
+            {
+              "x": 12,
+              "y": 16,
+              "width": 12,
+              "height": 8,
+              "content": {
+                "$ref": "#/spec/panels/mcp"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "duration": "1h",
+    "refreshInterval": "30s"
+  }
+}
