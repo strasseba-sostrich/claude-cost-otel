@@ -7,7 +7,7 @@
   "spec": {
     "display": {
       "name": "Agent cost",
-      "description": "What each agent (main, implementer, reviewer, general-purpose...) costs, on which model and through which MCP tools."
+      "description": "What each agent (main, implementer, reviewer, general-purpose...) costs, on which model and through which MCP tools, plus how recent prompts played out."
     },
     "panels": {
       "byAgent": {
@@ -255,6 +255,64 @@
             }
           ]
         }
+      },
+      "recentPrompts": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Recent prompts",
+            "description": "The latest prompts with duration and span count. Click a row to show its timeline below."
+          },
+          "plugin": {
+            "kind": "TraceTable",
+            "spec": {
+              "links": {
+                "trace": "/projects/ai-agents/dashboards/agent-cost?var-traceId=${traceId}"
+              }
+            }
+          },
+          "queries": [
+            {
+              "kind": "TraceQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "JaegerTraceQuery",
+                  "spec": {
+                    "service": "claude-code",
+                    "operation": "claude_code.interaction",
+                    "limit": 20
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "promptTimeline": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Prompt timeline",
+            "description": "One prompt end to end: LLM requests, tool calls, subagents and permission waits. Choose it with the Prompt trace variable or by clicking a row in Recent prompts."
+          },
+          "plugin": {
+            "kind": "TracingGanttChart",
+            "spec": {}
+          },
+          "queries": [
+            {
+              "kind": "TraceQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "JaegerTraceQuery",
+                  "spec": {
+                    "traceId": "$traceId"
+                  }
+                }
+              }
+            }
+          ]
+        }
       }
     },
     "layouts": [
@@ -330,9 +388,58 @@
             }
           ]
         }
+      },
+      {
+        "kind": "Grid",
+        "spec": {
+          "display": {
+            "title": "Prompts"
+          },
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 24,
+              "height": 11,
+              "content": {
+                "$ref": "#/spec/panels/recentPrompts"
+              }
+            },
+            {
+              "x": 0,
+              "y": 11,
+              "width": 24,
+              "height": 13,
+              "content": {
+                "$ref": "#/spec/panels/promptTimeline"
+              }
+            }
+          ]
+        }
       }
     ],
     "duration": "1h",
-    "refreshInterval": "30s"
+    "refreshInterval": "30s",
+    "variables": [
+      {
+        "kind": "ListVariable",
+        "spec": {
+          "name": "traceId",
+          "display": {
+            "name": "Prompt trace",
+            "description": "Prompts from the last 3 hours, taken from Loki log events. Clicking a row in Recent prompts selects it."
+          },
+          "allowAllValue": false,
+          "allowMultiple": false,
+          "plugin": {
+            "kind": "LokiLogQLVariable",
+            "spec": {
+              "expr": "sum by (trace_id) (count_over_time({service_name=\"claude-code\"} | trace_id != \"\" [3h]))",
+              "labelName": "trace_id"
+            }
+          }
+        }
+      }
+    ]
   }
 }
